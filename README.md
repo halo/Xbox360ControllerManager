@@ -57,7 +57,36 @@ pod install
 
 # Usage
 
-coming soon...
+This would be a minimal implementation of your Application Delegate:
+
+```objectivec
+#import "AppDelegate.h"
+
+#import "Xbox360ControllerManager.h"
+
+@implementation AppDelegate
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+  NSLog(@"Application started");
+  [Xbox360ControllerManager sharedInstance];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerAdded:) name:Xbox360ControllerAddedNotification object:NULL];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerRemoved:) name:Xbox360ControllerRemovedNotification object:NULL];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerAction:) name:Xbox360ControllerActionNotification object:NULL];
+}
+
+- (void) controllerAdded:(NSNotification*)notification {
+  NSLog(@"You added a controller: %@", [notification object]);
+}
+
+- (void) controllerRemoved:(NSNotification*)notification {
+  NSLog(@"You removed a controller: %@", [notification object]);
+}
+
+- (void) controllerAction:(NSNotification*)notification {
+  NSLog(@"You pressed some buttons: %@", [notification object]);
+}
+@end
+```
 
 ### Credits
 
