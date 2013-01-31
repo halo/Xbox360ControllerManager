@@ -1,7 +1,10 @@
 #import "Xbox360HIDManager.h"
 
 #import <IOKit/hid/IOHIDLib.h>
-#import "Xbox360ControllerConstants.h"
+
+NSString* const Xbox360HIDAddedNotification = @"Xbox360HIDAddedNotification";
+NSString* const Xbox360HIDRemovedNotification = @"Xbox360HIDRemovedNotification";
+NSString* const Xbox360HIDActionNotification = @"Xbox360HIDActionNotification";
 
 @implementation Xbox360HIDManager
 
@@ -10,30 +13,32 @@ static Xbox360HIDManager *sharedXbox360HIDManager = nil;
 + (Xbox360HIDManager*) sharedInstance {
 	if (sharedXbox360HIDManager) return sharedXbox360HIDManager;
   sharedXbox360HIDManager = [Xbox360HIDManager new];
+  if (sharedXbox360HIDManager) [sharedXbox360HIDManager activate];
   return sharedXbox360HIDManager;
 }
 
 void HIDAction(void* device, IOReturn inResult, void* inSender, IOHIDValueRef valueRef) {
   if (!device || inResult != 0) return;
   // Fetching the data
-  NSString *serial = (__bridge NSString*)(IOHIDDeviceGetProperty(device, CFSTR(kIOHIDSerialNumberKey)));
   IOHIDElementRef element = IOHIDValueGetElement(valueRef);
   NSNumber *elementID = [NSNumber numberWithInt:IOHIDElementGetCookie(element)];
   NSNumber *value = [NSNumber numberWithInt:IOHIDValueGetIntegerValue(valueRef)];
   // Wrapping it up in a dictionary
-  NSArray *dictionaryKeys = [NSArray arrayWithObjects:@"device", @"element", @"value", nil];
-  NSArray *dictionaryValues = [NSArray arrayWithObjects:(__bridge id)(device), elementID, value, nil];
-  NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:dictionaryValues forKeys:dictionaryKeys];
+  NSArray *keys = [NSArray arrayWithObjects:@"device", @"element", @"value", nil];
+  NSArray *values = [NSArray arrayWithObjects:(__bridge id)(device), elementID, value, nil];
+  NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:values forKeys:keys];
   // Sending the Notification with the dictionary
   [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDActionNotification object:dictionary];
 }
 
 void HIDWasAdded(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef device) {
+  if (!device || inResult != 0) return;
   IOHIDDeviceRegisterInputValueCallback(device, HIDAction, device);
   [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDAddedNotification object:(__bridge id)(device)];
 }
 
 void HIDWasRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef device) {
+  if (!device || inResult != 0) return;
   // Unregistering the callback handling device events
   IOHIDDeviceRegisterInputValueCallback(device, NULL, NULL);
   [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDRemovedNotification object:(__bridge id)(device)];

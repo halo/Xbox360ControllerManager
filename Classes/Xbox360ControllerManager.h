@@ -1,15 +1,11 @@
-@interface Xbox360ControllerManager : NSObject {}
+extern NSString* const Xbox360ControllerAddedNotification;
+extern NSString* const Xbox360ControllerRemovedNotification;
+extern NSString* const Xbox360ControllerActionNotification;
 
-@property (nonatomic, strong) NSMutableArray *controllers;
+@interface Xbox360ControllerManager : NSObject
 
-//@property (readonly) int controllerCount;
+@property (nonatomic, strong) NSMutableDictionary *controllers;
 
 + (Xbox360ControllerManager*) sharedInstance;
-
-//-(Xbox360Controller*)controllerWithHid:(io_object_t)hid;
-
-//-(void)updateControllers;
-//-(Xbox360Controller*)getController:(int)index;
-//-(void)setAllDelegates:(id<Xbox360ControllerDelegate>)d;
 
 @end
