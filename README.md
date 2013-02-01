@@ -62,15 +62,19 @@ This would be a minimal implementation of your Application Delegate:
 ```objectivec
 #import "AppDelegate.h"
 
+#import "Xbox360Controller.h"
 #import "Xbox360ControllerManager.h"
 
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-  NSLog(@"Application started");
+  // Start listening for device activity
   [Xbox360ControllerManager sharedInstance];
+  // Register to the notifications
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerAdded:) name:Xbox360ControllerAddedNotification object:NULL];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerRemoved:) name:Xbox360ControllerRemovedNotification object:NULL];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerActivity:) name:Xbox360ControllerActivityNotification object:NULL];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerUpdated:) name:Xbox360ControllerUpdatedNotification object:NULL];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(controllerAction:) name:Xbox360ControllerActionNotification object:NULL];
 }
 
@@ -82,11 +86,23 @@ This would be a minimal implementation of your Application Delegate:
   NSLog(@"You removed a controller: %@", [notification object]);
 }
 
-- (void) controllerAction:(NSNotification*)notification {
+- (void) controllerActivity:(NSNotification*)notification {
   NSLog(@"You pressed some buttons: %@", [notification object]);
 }
+
+- (void) controllerUpdated:(NSNotification*)notification {
+  Xbox360Controller *controller = [notification object];
+  NSLog(@"Controller updated: %d", controller.leftStickHorizontal);
+}
+
+- (void) controllerAction:(NSNotification*)notification {
+  NSLog(@"Controller action: %@", [notification object]);
+}
+
 @end
 ```
+
+If you are a little more low-level adventurous, you can also register to the `Xbox360HIDAddedNotification`, `Xbox360HIDRemovedNotification`, and `Xbox360HIDActivityNotification` after calling `[Xbox360HIDManager sharedInstance]`. Those will provide you with a `IOHIDDeviceRef` on activity.
 
 ### Credits
 

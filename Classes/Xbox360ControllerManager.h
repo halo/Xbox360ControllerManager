@@ -1,6 +1,6 @@
 extern NSString* const Xbox360ControllerAddedNotification;
 extern NSString* const Xbox360ControllerRemovedNotification;
-extern NSString* const Xbox360ControllerActionNotification;
+extern NSString* const Xbox360ControllerActivityNotification;
 
 @interface Xbox360ControllerManager : NSObject
 

@@ -4,7 +4,7 @@
 
 NSString* const Xbox360HIDAddedNotification = @"Xbox360HIDAddedNotification";
 NSString* const Xbox360HIDRemovedNotification = @"Xbox360HIDRemovedNotification";
-NSString* const Xbox360HIDActionNotification = @"Xbox360HIDActionNotification";
+NSString* const Xbox360HIDActivityNotification = @"Xbox360HIDActivityNotification";
 
 @implementation Xbox360HIDManager
 
@@ -17,7 +17,7 @@ static Xbox360HIDManager *sharedXbox360HIDManager = nil;
   return sharedXbox360HIDManager;
 }
 
-void HIDAction(void* device, IOReturn inResult, void* inSender, IOHIDValueRef valueRef) {
+void HIDActivity(void* device, IOReturn inResult, void* inSender, IOHIDValueRef valueRef) {
   if (!device || inResult != 0) return;
   // Fetching the data
   IOHIDElementRef element = IOHIDValueGetElement(valueRef);
@@ -28,12 +28,12 @@ void HIDAction(void* device, IOReturn inResult, void* inSender, IOHIDValueRef va
   NSArray *values = [NSArray arrayWithObjects:(__bridge id)(device), elementID, value, nil];
   NSDictionary *dictionary = [NSDictionary dictionaryWithObjects:values forKeys:keys];
   // Sending the Notification with the dictionary
-  [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDActionNotification object:dictionary];
+  [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDActivityNotification object:dictionary];
 }
 
 void HIDWasAdded(void* inContext, IOReturn inResult, void* inSender, IOHIDDeviceRef device) {
   if (!device || inResult != 0) return;
-  IOHIDDeviceRegisterInputValueCallback(device, HIDAction, device);
+  IOHIDDeviceRegisterInputValueCallback(device, HIDActivity, device);
   [[NSNotificationCenter defaultCenter] postNotificationName:Xbox360HIDAddedNotification object:(__bridge id)(device)];
 }
 
@@ -52,7 +52,7 @@ void HIDWasRemoved(void* inContext, IOReturn inResult, void* inSender, IOHIDDevi
   // Call these methods when something related to the devices i happening
   IOHIDManagerRegisterDeviceMatchingCallback(hidManager, HIDWasAdded, NULL);
 	IOHIDManagerRegisterDeviceRemovalCallback(hidManager, HIDWasRemoved, NULL);
-  IOHIDManagerRegisterInputValueCallback(hidManager, HIDAction, NULL);
+  IOHIDManagerRegisterInputValueCallback(hidManager, HIDActivity, NULL);
   // Let the Manager start observing Devices
 	IOHIDManagerScheduleWithRunLoop(hidManager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 	IOHIDManagerOpen(hidManager, kIOHIDOptionsTypeNone);
