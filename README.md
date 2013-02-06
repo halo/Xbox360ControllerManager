@@ -1,7 +1,3 @@
-### Work in Progress Note
-
-Work is in progress. I've established basic connection with the Controllers and am working on the abstraction so that you can plug this cocoa pod into your project. I don't want you to have to deal with IOHIDDevices, but with real controller instances and proper Notifications.
-
 # Xbox 360 Controller Manager
 
 This is a [CocoaPod](http://cocoapods.org) which provides a simple API for you to work with Xbox input devices such as controllers, guitars, and drumsets.
